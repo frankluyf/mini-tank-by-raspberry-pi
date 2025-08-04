@@ -10,6 +10,8 @@ Control is handled via a self-hosted web interface, allowing any device on the s
 
 ---
 
+<img src="photos/tank_gif1.gif" alt="Project Demo GIF" width="500">
+
 ## ✨ Key Features
 
 * **Omni-Directional Movement**: Utilizes Mecanum wheels to move forward, backward, sideways, and rotate on the spot.
@@ -17,7 +19,8 @@ Control is handled via a self-hosted web interface, allowing any device on the s
 * **Web-Based Control**: A responsive web interface hosted on the Raspberry Pi for intuitive control from a phone or computer.
 * **Real-time Commands**: Low-latency control over Wi-Fi.
 * **Powered by Raspberry Pi 5**: Leverages the performance of the latest Raspberry Pi for smooth operation.
-
+* **Camera to transmit live videos**: A panorama camera that can transmit live videos to the local website
+* **Connection to loudspeaker**: Connects to a Bluetooth loudspeaker which can send live recordings to the car and implement the function of remote communication.
 ---
 
 ## 🛠️ Hardware Components
@@ -27,12 +30,11 @@ Control is handled via a self-hosted web interface, allowing any device on the s
 | Raspberry Pi 5 | 1 | The brain of the rover. |
 | Mecanum Wheels | 4 | For omnidirectional movement. |
 | DC Geared Motors | 4 | To drive the wheels. |
-| Motor Driver | 1 or 2 | e.g., L298N or a more powerful driver HAT. |
+| Motor Driver | 1 | L298N with 8 IN and 8 OUT pins |
 | Micro Servos | 2 | For the 2-axis gun turret (pan/tilt). |
-| 5V Water Pump | 1 | For the water cannon. |
-| Relay Module | 1 | To safely control the water pump. |
-| Power Source | 1 | e.g., A powerful USB-C power bank or a LiPo battery pack with a voltage regulator. |
-| MicroSD Card | 1 | 16GB or larger, for the OS. |
+| high voltage Gun | 1 | For the water cannon. |
+| Power Source | 2 | A powerful powerbank for the gun and a rather small powerbank for the Raspberry pie|
+| MicroSD Card | 1 | 128GB or larger, for the Raspberry. |
 | Jumper Wires | Various | For connecting components. |
 | Chassis/Frame | 1 | To mount all the components. |
 
