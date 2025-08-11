@@ -44,13 +44,7 @@ Control is handled via a self-hosted web interface, allowing any device on the s
 
 ## 🔌 Wiring Diagram
 
-A clear wiring diagram is crucial for replicating this project.
-
-*(Insert an image of your wiring diagram here. You can create one using tools like Fritzing or draw.io and place the image file in a `docs/images` folder.)*
-
-**`[docs/images/wiring_diagram.png]`**
-
----
+### To be designed
 
 ## 💻 Software & Setup
 
@@ -103,3 +97,44 @@ A clear wiring diagram is crucial for replicating this project.
 ---
 
 ## 📂 Project Structure
+
+
+
+## 🗒️Hardware Connection Table
+
+This document details the hardware wiring for all modules in this project. Please follow this guide carefully during assembly to ensure all connections are correct.
+
+### Main Control & Peripherals
+
+| Source Module & Port | Destination & Connection | Raspberry Pi Pin | Function / Description |
+| :--- | :--- | :--- | :--- |
+| **Relay** |
+| Relay `S` (Signal) | -> Raspberry Pi GPIO | **Pin 15** (GPIO22) | Main power control signal |
+| Relay `+` (VCC) | -> Raspberry Pi 5V | **Pin 2** (5V) | Power for the relay module |
+| Relay `-` (GND) | -> Raspberry Pi GND | **Pin 39** (GND) | Ground for the relay module |
+| **Motor Driver (L298N)** |
+| L298N `IN1` | -> Raspberry Pi GPIO | **Pin 11** (GPIO17) | Motor A Control |
+| L298N `IN2` | -> Raspberry Pi GPIO | **Pin 13** (GPIO27) | Motor A Control |
+| L298N `IN3` | -> Raspberry Pi GPIO | **Pin 16** (GPIO23) | Motor B Control |
+| L298N `IN4` | -> Raspberry Pi GPIO | **Pin 18** (GPIO24) | Motor B Control |
+| L298N `IN5` | -> Raspberry Pi GPIO | **Pin 29** (GPIO5) | Motor C Control |
+| L298N `IN6` | -> Raspberry Pi GPIO | **Pin 31** (GPIO6) | Motor C Control |
+| L298N `IN7` | -> Raspberry Pi GPIO | **Pin 36** (GPIO16) | Motor D Control |
+| L298N `IN8` | -> Raspberry Pi GPIO | **Pin 37** (GPIO26) | Motor D Control |
+| **Camera** |
+| Camera `USB` Connector | -> Raspberry Pi USB Port | Any USB Port | Video Data Capture |
+
+<br>
+
+### Power System
+
+| Source / Junction Point | Destination & Connection | Function / Description |
+| :--- | :--- | :--- |
+| L298N `GND` | -> Raspberry Pi `GND` (e.g., Pin 9)<br>-> Relay `NC`<br>-> Battery `Negative (-)` | **System Main Ground Junction.** All grounds are tied together at this point. |
+| L298N `VCC` (+12V) | -> Relay `NO`<br>-> Battery `Positive (+)` | **System Main Power Junction.** All positive leads are tied together at this point. |
+| Relay `COM` | -> "Gun" Module `Negative (-)` | **Switched Output.** Controlled by the relay. |
+| Relay `NC` | -> "Gun" Module `Positive (+)`<br>   *(Also connected to Ground)* | **Default Output.** Connected to ground by default. |
+
+
+> ### ⚠️ **Important Wiring Warning**
+> **Please double-check your circuit diagram and logic before applying power to prevent potential damage to your components.** Standard practice is typically to use a relay to switch a single positive (+) power line.
