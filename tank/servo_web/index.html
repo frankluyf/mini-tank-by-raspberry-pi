@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>舵机控制与喊话界面</title>
+  <style>
+    /* CSS样式部分保持不变 */
+    html, body { margin: 0; padding: 0; background: #000; height: 100%; overflow: hidden; font-family: "Segoe UI", sans-serif; }
+    .container { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: inline-block; }
+    #video-stream { display: block; width: 640px; height: 480px; object-fit: cover; border-radius: 8px; box-shadow: 0 0 12px rgba(0, 255, 0, 0.3); transition: width 0.3s ease, height 0.3s ease; }
+    .fullscreen #video-stream { width: 100vw; height: 100vh; border-radius: 0; }
+    #debug { position: absolute; top: 8px; left: 8px; background: rgba(0, 0, 0, 0.6); color: #00ff00; padding: 10px 12px; font-size: 14px; border-radius: 6px; pointer-events: none; white-space: pre; box-shadow: 0 0 6px rgba(0, 255, 0, 0.3); z-index: 10; }
+    #crosshair { position: fixed; top: 50%; left: 50%; width: 40px; height: 40px; margin-top: -20px; margin-left: -20px; z-index: 5; pointer-events: none; }
+    #crosshair::before, #crosshair::after { content: ""; position: absolute; background: red; }
+    #crosshair::before { top: 50%; left: 0; width: 100%; height: 2px; transform: translateY(-50%); }
+    #crosshair::after { left: 50%; top: 0; width: 2px; height: 100%; transform: translateX(-50%); }
+    
+    /* 通用提示样式 */
+    .prompt {
+      position: fixed; left: 20px; padding: 10px 15px;
+      background: rgba(0, 0, 0, 0.6); color: #00ff00;
+      font-size: 14px; border-radius: 6px; z-index: 20;
+      pointer-events: none; transition: all 0.2s ease;
+      transform: translateY(-50%);
+    }
+    #shout-prompt { top: 50%; }
+    #shout-prompt.active { background-color: #f44336; color: white; font-weight: bold; }
+    
+    /* 新增：截图和按键提示样式 */
+    #screenshot-prompt { top: calc(50% + 55px); }
+    #screenshot-prompt.capturing { background-color: #2196F3; color: white; font-weight: bold; }
+    #keystate-display { top: calc(50% + 110px); background: rgba(255, 255, 255, 0.1); }
+  </style>
+</head>
+<body>
+
+<div id="shout-prompt" class="prompt">按住 P 键喊话</div>
+<div id="screenshot-prompt" class="prompt">按 C 键截图</div>
+<div id="keystate-display" class="prompt">当前无按键</div>
+
+<div class="container" id="container">
+  <img id="video-stream" src="" alt="视频流">
+  <div id="debug">连接中...</div>
+</div>
+
+<div id="crosshair"></div>
+
+<script src="ip.js"></script>
+<script>
+  const MJPEG_PORT = 8080;
+  const WS_PORT = 5000;
+
+  // 获取所有UI元素
+  const video = document.getElementById("video-stream");
+  const debug = document.getElementById("debug");
+  const shoutPrompt = document.getElementById("shout-prompt");
+  const screenshotPrompt = document.getElementById("screenshot-prompt");
+  const keystateDisplay = document.getElementById("keystate-display");
+
+  // 定义中心点和状态变量
+  const yaw_center = 75, pitch_center = 90;
+  let ws, controlMode = false, yaw = 90, pitch = 90;
+  let audioContext, mediaStream, audioWorkletNode, isWorkletLoaded = false, isShoutingActive = false;
+  const keyStates = { w: false, a: false, s: false, d: false, q: false, e: false };
+  const pressedKeys = new Set(); // 用于显示当前按下的所有键
+
+  // --- 工具函数 ---
+  function clamp(v,l,h){return Math.max(l,Math.min(h,v))}
+  function logDebug(){debug.innerHTML=`<strong>状态</strong><br>WebSocket: ${ws&&ws.readyState===1?"✅ 已连接":"❌ 断开"}<br>控制模式: ${controlMode?"🟢 开启":"⚪ 关闭"}<br>Yaw: ${yaw.toFixed(1)}°<br>Pitch: ${pitch.toFixed(1)}°`}
+  
+  // --- 更新按键显示函数 ---
+  function updateKeystateDisplay() {
+    if (pressedKeys.size === 0) {
+      keystateDisplay.textContent = '当前无按键';
+    } else {
+      keystateDisplay.textContent = '按下: ' + [...pressedKeys].join(' ');
+    }
+  }
+
+  // --- WebSocket 连接 ---
+  function connectWebSocket() {
+    const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+    ws = new WebSocket(`${protocol}${RASPBERRY_IP}:${WS_PORT}/ws`);
+    ws.binaryType = 'arraybuffer';
+    ws.onopen = () => { console.log("WebSocket connected"); logDebug(); };
+    ws.onmessage = (event) => {
+      if (typeof event.data === 'string') {
+        try {
+            const data = JSON.parse(event.data);
+            if (data.ok) { yaw = data.yaw; pitch = data.pitch; }
+            if (data.status === "screenshot_ok") {
+                console.log(`✅ Screenshot saved: ${data.filename}`);
+                screenshotPrompt.textContent = '截图已保存!';
+                screenshotPrompt.classList.add('capturing');
+                setTimeout(() => {
+                    screenshotPrompt.textContent = '按 C 键截图'; 
+                    screenshotPrompt.classList.remove('capturing');
+                }, 2000);
+            } else if (data.status === "screenshot_error") {
+                console.error(`❌ Screenshot failed: ${data.message}`);
+                screenshotPrompt.textContent = '截图失败!';
+                setTimeout(() => { screenshotPrompt.textContent = '按 C 键截图'; }, 2000);
+            }
+        } catch {}
+        logDebug();
+      }
+    };
+    ws.onclose = () => { console.log("WebSocket disconnected"); logDebug(); setTimeout(connectWebSocket, 3000); };
+    ws.onerror = (error) => { console.error("WebSocket Error: ", error); }
+  }
+
+  // --- 喊话功能 (无改动) ---
+  async function startShouting() {
+      if(isShoutingActive||!ws||ws.readyState!==1)return;if(!audioContext)audioContext=new(window.AudioContext||window.webkitAudioContext)();if(audioContext.state==='suspended')await audioContext.resume();try{if(!isWorkletLoaded){await audioContext.audioWorklet.addModule('audio-processor.js');isWorkletLoaded=true}mediaStream=await navigator.mediaDevices.getUserMedia({audio:true});const source=audioContext.createMediaStreamSource(mediaStream);audioWorkletNode=new AudioWorkletNode(audioContext,'audio-recorder-processor');audioWorkletNode.port.onmessage=(event)=>{if(ws&&ws.readyState===1&&isShoutingActive)ws.send(event.data.buffer)};source.connect(audioWorkletNode);isShoutingActive=true;shoutPrompt.textContent='喊话中...';shoutPrompt.classList.add('active')}catch(err){console.error('启动喊话失败:',err);isShoutingActive=false}
+  }
+  function stopShouting() {
+      if(!isShoutingActive)return;isShoutingActive=false;if(mediaStream){mediaStream.getTracks().forEach(track=>track.stop());mediaStream=null}if(audioWorkletNode){audioWorkletNode.disconnect();audioWorkletNode=null}shoutPrompt.textContent='按住 P 键喊话';shoutPrompt.classList.remove('active')
+  }
+
+  // --- 控制相关函数 (无改动) ---
+  function sendControl(y,p){if(ws&&ws.readyState===1)ws.send(JSON.stringify({yaw:y,pitch:p}))}
+  function sendKeyState(k,s){if(ws&&ws.readyState===1)ws.send(JSON.stringify({key:k,state:s}))}
+  function handleKeyStateChange(e,d){const k=e.key.toLowerCase();if(["w","a","s","d","q","e","f","m"," ","p","c"].includes(k))e.preventDefault();if(!controlMode&&!["p","c","m","f","h"].includes(k))return;if(k===" ")sendKeyState(" ",d?"down":"up");else if(Object.keys(keyStates).includes(k)){if(keyStates[k]!==d){keyStates[k]=d;sendKeyState(k,d?"down":"up")}}}
+  function enterControlMode(){controlMode=true;document.body.style.cursor="none";ws?.send(JSON.stringify({mode:"on"}));logDebug()}
+  function exitControlMode(){controlMode=false;document.body.style.cursor="default";ws?.send(JSON.stringify({mode:"off"}));logDebug()}
+
+  // --- 事件监听 ---
+  document.addEventListener("keydown",(e)=>{
+    const key = e.key.toLowerCase();
+    
+    pressedKeys.add(key.toUpperCase());
+    updateKeystateDisplay();
+
+    if (key === 'p') {
+      if (!isShoutingActive) startShouting();
+    } else if (key === 'c') {
+        ws.send(JSON.stringify({action: 'screenshot'}));
+        screenshotPrompt.textContent = '截图中...';
+    } else if (key === "f") {
+      // --- START: RESTORED FULLSCREEN LOGIC ---
+      if (!document.fullscreenElement) {
+        container.requestFullscreen().then(() => {
+          document.body.classList.add('fullscreen');
+        });
+      } else {
+        document.exitFullscreen().then(() => {
+          document.body.classList.remove('fullscreen');
+        });
+      }
+      // --- END: RESTORED FULLSCREEN LOGIC ---
+    } else if (key === "m") {
+      controlMode ? exitControlMode() : enterControlMode();
+    } else if (key === 'h') {
+      sendControl(yaw_center, pitch_center);
+    }
+    handleKeyStateChange(e, true);
+  });
+  
+  document.addEventListener("keyup",(e)=>{
+    const key = e.key.toLowerCase();
+
+    pressedKeys.delete(key.toUpperCase());
+    updateKeystateDisplay();
+
+    stopShouting();
+    handleKeyStateChange(e, false);
+  });
+
+  document.addEventListener("mousemove",(e)=>{if(!controlMode)return;const w=window.innerWidth;const h=window.innerHeight;const xRatio=clamp(1-e.clientX/w,0,1);const yRatio=clamp(1-e.clientY/h,0,1);yaw=10+xRatio*(131-10);pitch=20+yRatio*(160-20);sendControl(yaw,pitch);logDebug()});
+  window.onload=()=>{const p=window.location.protocol==='https:'?'https://':'http://';video.src=`${p}${RASPBERRY_IP}:${MJPEG_PORT}/?action=stream`;connectWebSocket();logDebug()};
+</script>
+
+</body>
+</html>
