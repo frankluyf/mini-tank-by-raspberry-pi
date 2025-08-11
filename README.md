@@ -76,23 +76,30 @@ Control is handled via a self-hosted web interface, allowing any device on the s
 
 ## 🚀 How to Use
 
-1.  **Start the web server:**
-    Navigate to the project directory and run the main application script.
-    ```bash
-    python src/main.py
-    ```
+1.  **Connect to Raspberry:**
+    Contact to raspberry pi using Visual Studio Code
 
-2.  **Find the Raspberry Pi's IP Address:**
+2.  **Activate environment:**
     In the terminal, type:
     ```bash
-    hostname -I
+    cd tank
+    source tank_env/bin/activate
     ```
 
-3.  **Access the Control Interface:**
-    Open a web browser on your phone or computer (on the same Wi-Fi network) and navigate to `http://<YOUR_PI_IP_ADDRESS>:5000`.
-
-4.  **Control the Rover:**
-    Use the on-screen controls to move the rover and operate the water cannon.
+3.  **Activate web server**
+    in the terminal, type:
+    ```bash
+    cd servo_web
+    ./test.sh
+    python server.py
+    ```
+    
+5.  **Activate web page**
+    in another terminal, type:
+    ```bash
+    cd tank/servo_web
+    ./start.sh
+    ```
 
 ---
 
