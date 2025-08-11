@@ -12,7 +12,7 @@ Control is handled via a self-hosted web interface, allowing any device on the s
 
 ---
 
-<img src="tank/photos/tank_gif1.gif" alt="Project Demo GIF" width="500">
+<img src="photos/tank_gif1.gif" alt="Project Demo GIF" width="500">
 
 ## ✨ Key Features
 
