@@ -58,8 +58,8 @@ Control is handled via a self-hosted web interface, allowing any device on the s
 
 1.  **Clone the repository:**
     ```bash
-    git clone [https://github.com/your-username/your-repo-name.git](https://github.com/your-username/your-repo-name.git)
-    cd your-repo-name
+    git clone [https://github.com/your-username/your-repo-name.git](https://github.com/frankluyf/mini-tank-by-raspberry-pi.git)
+    cd mini-tank-by-raspberry-pi
     ```
 
 2.  **Install required Python libraries:**
