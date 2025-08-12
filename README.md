@@ -212,6 +212,22 @@ This document details the hardware wiring for all modules in this project. Pleas
 | Relay `COM` | -> "Gun" Module `Negative (-)` | **Switched Output.** Controlled by the relay. |
 | Relay `NC` | -> "Gun" Module `Positive (+)`<br>   *(Also connected to Ground)* | **Default Output.** Connected to ground by default. |
 
+## Breadboard Wiring Details
+
+This table details the connections made on the breadboard. All components listed in the same row are electrically connected on the same bus line.
+
+| Breadboard Bus / Node | Connected Components | Connected to Raspberry Pi |
+| :--- | :--- | :--- |
+| **5V Power Bus (+)** | Muzzle LED `(+)`<br>Muzzle Laser `(+)`<br>Lower Gimbal `(+)`<br>Upper Gimbal `(+)` | **Pin 4** (5V) |
+| **Ground Bus (-)** | Muzzle LED `(GND)`<br>Muzzle Laser `(GND)`<br>Lower Gimbal `(Brown Wire - GND)`<br>Upper Gimbal `(Brown Wire - GND)` | **Pin 6** (GND) |
+| **Upper Gimbal Signal** | Upper Gimbal `(Orange Wire - Data)` | **Pin 35** (GPIO19) |
+| **Lower Gimbal Signal** | Lower Gimbal `(Orange Wire - Data)` | **Pin 12** (GPIO18) |
+
+### Table Explanation
+
+1.  **5V Power Bus**: The 5V line from Pin 4 of the Raspberry Pi is distributed via the breadboard to provide power to the muzzle LED, the laser, and both the upper and lower gimbals.
+2.  **Ground Bus**: A common ground is established using Pin 6 of the Raspberry Pi, connecting all relevant components' grounds together to complete the circuits.
+3.  **Gimbal Signals**: The data lines for controlling the upper and lower gimbals are connected to GPIO19 and GPIO18 respectively, which are used to send control commands from the Raspberry Pi.
 
 > ### ⚠️ **Important Wiring Warning**
 > **Please double-check your circuit diagram and logic before applying power to prevent potential damage to your components.** Standard practice is typically to use a relay to switch a single positive (+) power line.
