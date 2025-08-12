@@ -174,8 +174,40 @@ After these steps, the software environment is fully configured and ready to run
 ---
 
 ## 📂 Project Structure
-
-
+```
+.
+├── photos/                 # Contains project-related images and videos
+│   ├── mmexport...mp4
+│   ├── tank_gif1.gif
+│   └── tankimg.jpg
+│
+├── tank/                   # Subdirectory for the core logic of the tank
+│   ├── lidar/              # Code related to the LiDAR sensor
+│   │   ├── lidar_ws.py     # WebSocket server for LiDAR data
+│   │   ├── run_lidar.sh    # Script to run the LiDAR
+│   │   └── ...
+│   └── mjpg-streamer/      # Files related to the MJPG-streamer for camera feed
+│
+├── servo_web/              # Files for the Servo/Gimbal control web interface
+│
+├── server.py               # The main backend server for the project (likely Flask or FastAPI)
+├── motors_control.py       # Core Python script for controlling the motors
+├── led.py                  # Python script for controlling the LED lights
+├── start.sh                # Main script to start the entire project
+├── camera_controls.sh      # Script to control the camera
+│
+├── index.html              # The main page for the web control interface
+├── audio-processor.js      # JavaScript file for processing audio
+├── ip.js                   # JavaScript file for handling IP addresses
+├── shout-processor.js      # Functional JavaScript file
+├── cert.pem                # SSL certificate file (for HTTPS)
+└── key.pem                 # SSL private key file (for HTTPS)
+│
+├── .gitignore              # Specifies intentionally untracked files to ignore
+├── LICENSE                 # Project license file
+├── README.md               # The main documentation for the project (this file)
+└── requirements.txt        # List of Python dependencies for the project
+```
 
 ## 🗒️Hardware Connection Table
 
