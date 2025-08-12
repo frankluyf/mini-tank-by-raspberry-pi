@@ -42,9 +42,54 @@ Control is handled via a self-hosted web interface, allowing any device on the s
 
 ---
 
-## 🔌 Wiring Diagram
+## 🔌 Robot Structure (Simplified Diagram)
 
-### To be designed
+This is a simplified side view representation of the robot's three-layer structure:
+
+<pre>
+        _________________
+       /                 \  &lt;-- Top Layer Divider
+      |      _______      |
+      |     /       \     |  &lt;-- Gun
+      |    |  Laser  |    |
+      |    \_______/    |
+^     |       O         |  &lt;-- LED
+|     |      -----      |
+|     |     |Gimbal|     |
+|     |      -----      |
+      \_________________/
+
+        -----------------
+       /                 \  &lt;-- Middle Layer Divider
+      |  -------         |
+      | | L298N |        |  &lt;-- L298N, Power Bank [PB]
+      |  -------         |
+      |  -----    -----  |
+      |  | [PB]  | RPi   |  &lt;-- Raspberry Pi [RPi]
+      |  -----    -----  |
+      \-----------------/
+
+        =================
+       /                 \  &lt;-- Bottom Layer
+      |  ---------      |
+      | | Big Batt|      |
+      |  ---------      |
+      |     ---          |
+      |    |Relay|       |  &lt;-- Relay
+      |     ---       |
+      \=================/
+
+          O   O   O   O      &lt;-- Wheels (Very Simplified)
+</pre>
+
+**Top Layer:** Contains the gimbal in the center, the gun mounted on top of it, a laser emitter at the gun's muzzle, an LED at the base of the gun barrel, and the camera positioned in front of the (fake) scope.
+
+**Middle Layer:** Houses the L298N motor driver in the front, a power bank on the left rear, and the Raspberry Pi on the right rear.
+
+**Bottom Layer:** Contains the large battery for powering the motors and the gun mechanism, located at the front of the chassis. A small relay is positioned slightly behind the battery.
+
+**Note:** This is a highly simplified representation and does not show the exact placement or connections of all components.
+
 
 ## 💻 Software & Setup
 
@@ -170,3 +215,4 @@ This document details the hardware wiring for all modules in this project. Pleas
 
 > ### ⚠️ **Important Wiring Warning**
 > **Please double-check your circuit diagram and logic before applying power to prevent potential damage to your components.** Standard practice is typically to use a relay to switch a single positive (+) power line.
+
