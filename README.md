@@ -53,24 +53,49 @@ Control is handled via a self-hosted web interface, allowing any device on the s
 * Raspberry Pi OS (Bookworm or newer) flashed onto a MicroSD card.
 * Python 3.11+
 * Git
+* Visual Studio Code (highly recommended)
 
-### Installation Steps
+### Installation
 
-1.  **Clone the repository:**
+Follow these steps to set up the project environment on your Raspberry Pi.
+
+1.  **Clone the Repository**
+
+    First, download the project files from GitHub to your Raspberry Pi and navigate into the newly created directory.
+
     ```bash
-    git clone [https://github.com/your-username/your-repo-name.git](https://github.com/frankluyf/mini-tank-by-raspberry-pi.git)
+    git clone https://github.com/frankluyf/mini-tank-by-raspberry-pi.git
     cd mini-tank-by-raspberry-pi
     ```
 
-2.  **Install required Python libraries:**
-    This project uses the following key libraries. Install them using `pip`.
+2.  **Create and Activate a Virtual Environment**
+
+    Using a virtual environment is highly recommended to keep project dependencies isolated from the system's global Python packages.
+
+    ```bash
+    # Create a virtual environment named "tank_venv"
+    cd tank
+    # Recommend to install the environment in tank 
+    python3 -m venv tank_venv
+
+    # Activate the virtual environment
+    source tank_venv/bin/activate
+    ```
+    *(You'll know it's active when you see `(tank_venv)` at the beginning of your command prompt.)*
+
+3.  **Install Required Libraries**
+
+    With the virtual environment active, install all the necessary Python libraries using the `requirements.txt` file.
+
     ```bash
     pip install -r requirements.txt
     ```
-    *Your `requirements.txt` file should include libraries like `flask`, `gpiozero`, etc.*
 
-3.  **Configure Wi-Fi:**
-    Ensure your Raspberry Pi is connected to the same Wi-Fi network that you will use for control.
+4.  **Configure Wi-Fi**
+
+    Ensure your Raspberry Pi is connected to the same Wi-Fi network that you will use to control the vehicle.
+
+After these steps, the software environment is fully configured and ready to run.
 
 ---
 
